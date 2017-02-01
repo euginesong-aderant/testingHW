@@ -115,11 +115,14 @@
         // if the specific city name is not available
         if(!city || typeof city === "number" || city.includes("-")){
             console.log(city);
+            
             url = baseAPI + region + "," + countryCode + apikey;
+            console.log(url);
 
         // if the city name is available to search
         } else {
             url = baseAPI + city + "," + countryCode + apikey;
+            console.log(url);
         }
 
         request.open("GET",url,true); //async true
@@ -146,7 +149,16 @@
     // filter the required weather information
     function filterWeather(rawWeather,locationInfo){
         console.log("raw weather is going to be filtered");
-        var filteredData = [];
+        var filteredData = {
+        
+            temp : (rawWeather.main.temp -273.15).toFixed(2) + "°C",
+            humidity : rawWeather.main.humidity + "%",
+            desc : rawWeather.weather[0].description,
+            icon : "http://openweathermap.org/img/w/" + rawWeather.weather[0].icon + ".png",
+            clouds : rawWeather.clouds.all + "%",
+            wind : rawWeather.wind.speed + "m/s"
+
+        };
 
         displayWeather(filteredData,locationInfo);
 
@@ -159,6 +171,7 @@
         var region = location.region;
         var country = location.country;
         var title = "";
+        var iconImage = "<img src=" + weather.icon + " height=100 width=100>"
 
         if(!city || typeof city === "number" || city.includes("-")){
             title = region + ", " + country;
@@ -166,8 +179,10 @@
             title = city + ", " + region + ", " + country;
         }
 
+        console.log(weather);
+
         popupTitleEditor(title);
-        popupBodyEditor("weather information blahdlkfajlewkj")
+        popupBodyEditor(iconImage);
     }
 
     function noWeatherAlert(){
@@ -203,10 +218,6 @@
     google.maps.event.addListener(marker,'dragend', popupOpen);
     google.maps.event.addListener(marker,'dragstart', popupClose);
 
-    function kelvinToCelcius(tempInK){
-        let tempInC = tempInK - 273.15;
-        return tempInC;
-    }
     /* Init function might need to be added
     */
 })();
