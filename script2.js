@@ -33,9 +33,12 @@
                 return getWeatherInfo(locationInfo);
             })
             .then(function(data) {
+                console.log(data);
+                console.log("2nd");
                 weatherInfo = filterWeatherInfo(data, locationInfo);
             })
             .then(function() {
+                console.log("3rd");
                 if (!locationInfo){
                     displayInvalidLoaction();
                 } else if (!weatherInfo){
@@ -229,20 +232,19 @@
     // display the weather information using pop up window title and body
     function displayWeather(weather,location){
 
+        console.log("display weather opened");
+
         var city = location.city;
         var region = location.region;
         var country = location.country;
-        var title = "";
-        
+
         if(!city || typeof city === "number" || city.includes("-")){
-            title = region + ", " + country;
+            cityEl.innerHTML = region;
         } else {
-            title = city + ", " + region + ", " + country;
+            cityEl.innerHTML = city + ", " + region;
         }
 
-        console.log(weather);
-
-        popupTitleEditor(title);
+        countryEl.innerHTML = country;
         popupBodyEditor(weather);
     }
 
@@ -262,7 +264,8 @@
     }
 
     function popupBodyEditor(weather){
-        
+        console.log("body editior opened");
+
         var iconImage = "<img src='" + weather.icon + "' height=100 width=100>";
 
         var weatherIconElement = document.getElementById('weatherIcon');
