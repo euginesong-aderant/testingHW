@@ -33,7 +33,7 @@
                 return getWeatherInfo(locationInfo);
             })
             .then(function(data) {
-                weatherInfo = filterWeatherInfo(data);
+                weatherInfo = filterWeatherInfo(data, locationInfo);
             })
             .then(function() {
                 if (!locationInfo){
@@ -49,7 +49,7 @@
                 
             })
             .catch(function() {
-                
+                console.log("something is not working");
             });
 
     }
@@ -128,8 +128,10 @@
     }
 
     function getWeatherInfo(locationInfo){
+        console.log("get weather info is called");
 
         if(!locationInfo){
+            console.log("location info is null");
             return resolve(null);
         }
 
@@ -178,7 +180,10 @@
     }
 
     // filter the required weather information
-    function filterWeather(rawWeather,locationInfo){
+    function filterWeatherInfo(rawWeather,locationInfo){
+        console.log(rawWeather);
+        console.log(locationInfo);
+
         if(!rawWeather || !locationInfo){
             return null;
         }
@@ -194,11 +199,24 @@
         };
     }
 
-    function displayInvalidLoaction(){
+    // Elements used for display
+    var popupTitlEl = document.getElementsByClassName('popup-title')[0];
+    var cityEl = document.getElementById('regionAndCity');
+    var countryEl = document.getElementById('country');
+    var popupBodyEl = document.getElementsByClassName('popup-body')[0];
+    var weatherIconEl = document.getElementById('weatherIcon');
+    var temperatureEl = document.getElementById('temperature');
+    var descriptionEl = document.getElementById('description');
+    var humidityEl = document.getElementById('humidity');
+    var cloudsEl = document.getElementById('clouds');
+    var windEl = document.getElementById('wind');
 
+    function displayInvalidLoaction(){
+        countryEl.innerHTML = "This is middle of nowhere !";
+        descriptionEl.innerHTML = "How about trying to move the marker to the other place?";
     }
 
-    function displayNoWeatherAvailable(){
+    function displayNoWeatherAvailable(locationinfo){
 
     }
     
@@ -252,11 +270,6 @@
         weatherIconElement.innerHTML = iconImage;
         temperatureElement.innerHTML = weather.temp;
     }
-
-    function popupTitleEditor(input){
-        document.getElementById('popupTitle').innerHTML = input;
-    }
-
     // function displayWeatherDetail(){
     //     document.getElementsByClassName('popup-body')[0].innerHTML = "Something else is coming here ! ";
     // }
@@ -270,8 +283,6 @@
     }
 
     function toggleDisplay(element){
-        console.log("Toggle the visibility");
-
         if(element.style.display == 'block'){
             element.style.display = 'none';
         } else {
@@ -280,14 +291,13 @@
     }
 
 
-    // testing purpose 
-    var testBtn = document.getElementById('testingButton');
+    var infoBody = document.getElementsByClassName('popup-body')[0];
     var sum = document.getElementById('weatherSummary');
     sum.style.display='block';
     var det = document.getElementById('weatherDetail');
     det.style.display='none';
 
-    testBtn.onclick = function(){
+    infoBody.onclick = function(){
         toggleDisplay(sum);
         toggleDisplay(det);
     }

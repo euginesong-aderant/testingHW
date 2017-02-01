@@ -21,6 +21,7 @@
 .popup-body {
   padding: 10px 15px;
   color: #555;
+  vertical-align: middle;
 }
 
 .popup-close {
@@ -43,4 +44,8 @@
 
 #weatherSummary {
   display : block;
+}
+
+#popup {
+  text-align: center;
 }
