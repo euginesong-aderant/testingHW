@@ -30,17 +30,19 @@
         getLocationInfo(coordinates)
             .then(function(data) {
                 locationInfo = data;
-                if(!locationInfo){
-                    // If it is resolved as NULL 
-                    console.log("location null what is happening now????");
-                }
                 return getWeatherInfo(locationInfo);
             })
             .then(function(data) {
                 weatherInfo = filterWeatherInfo(data);
             })
             .then(function() {
-                displayWeather(weatherInfo, locationInfo);
+                if (!locationInfo){
+                    displayInvalidLoaction();
+                } else if (!weatherInfo){
+                    displayNoWeatherAvailable();
+                } else {
+                    displayWeather(weatherInfo, locationInfo);
+                }
                 // setLoading(false);
             })
             .then(function() {
@@ -115,6 +117,10 @@
                 } else {
                     locationInfo.city = geocodeData.results[length-3].address_components[0].long_name
                 }
+
+                console.log("Location Information : ");
+                console.log(locationInfo);
+
                 return resolve(locationInfo);
             }
             request.send();
@@ -122,7 +128,10 @@
     }
 
     function getWeatherInfo(locationInfo){
-        console.log("weather here");
+
+        if(!locationInfo){
+            return resolve(null);
+        }
 
         var city = locationInfo.city;
         var region = locationInfo.region;
@@ -136,7 +145,7 @@
             var url;
 
             // if the specific city name is not available
-            if(!city || typeof city === "number" || city.includes("-")){
+            if(!city || typeof city === "number" || city.includes("-") || city.includes("Unknown")){
                 url = baseAPI + region + "," + countryCode + apikey;
             // if the city name is available to search
             } else {
@@ -157,6 +166,10 @@
                 } catch(e){
                     return reject(new Error("Invalid JSON returned from weather api"));
                 }
+
+                console.log("Weather Information : ");
+                console.log(weatherData);
+
                 return resolve(weatherData);
             }
             request.send();
@@ -166,6 +179,9 @@
 
     // filter the required weather information
     function filterWeather(rawWeather,locationInfo){
+        if(!rawWeather || !locationInfo){
+            return null;
+        }
         return {
         
             temp : (rawWeather.main.temp -273.15).toFixed(2) + "°C",
@@ -178,6 +194,20 @@
         };
     }
 
+    function displayInvalidLoaction(){
+
+    }
+
+    function displayNoWeatherAvailable(){
+
+    }
+    
+    function noWeatherAlert(){
+        console.log("weather information is unavailable for this place")
+        popupTitleEditor("middle of nowhere?!");
+        document.getElementById('weatherSummary').innerHTML = "weather information is unavailable for this place";
+        popupOpen();
+    }
     // display the weather information using pop up window title and body
     function displayWeather(weather,location){
 
@@ -196,13 +226,6 @@
 
         popupTitleEditor(title);
         popupBodyEditor(weather);
-    }
-
-    function noWeatherAlert(){
-        console.log("weather information is unavailable for this place")
-        popupTitleEditor("middle of nowhere?!");
-        document.getElementById('weatherSummary').innerHTML = "weather information is unavailable for this place";
-        popupOpen();
     }
 
     // pop up window related 
