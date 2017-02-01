@@ -171,7 +171,7 @@
         var region = location.region;
         var country = location.country;
         var title = "";
-        var iconImage = "<img src=" + weather.icon + " height=100 width=100>"
+        
 
         if(!city || typeof city === "number" || city.includes("-")){
             title = region + ", " + country;
@@ -182,7 +182,7 @@
         console.log(weather);
 
         popupTitleEditor(title);
-        popupBodyEditor(iconImage);
+        popupBodyEditor(weather);
     }
 
     function noWeatherAlert(){
@@ -207,8 +207,13 @@
         popup.close();
     }
 
-    function popupBodyEditor(input){
-        document.getElementsByClassName('popup-body')[0].innerHTML = input;
+    function popupBodyEditor(weather){
+        
+        var iconImage = "<img src='" + weather.icon + "' height=100 width=100>"
+        console.log("Icon image tag url : " + iconImage);
+
+        document.getElementById('weatherIcon').innerHTML = iconImage;
+        document.getElementsByClassName('popup-body')[0].innerHTML = weather.temp;
     }
 
     function popupTitleEditor(input){
