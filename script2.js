@@ -265,6 +265,10 @@
     google.maps.event.addListener(marker,'dragend', popupOpen);
     google.maps.event.addListener(marker,'dragstart', popupClose);
 
+    function setLoading(){
+
+    }
+
     function toggleDisplay(element){
         if(element.style.display == 'block'){
             element.style.display = 'none';
@@ -273,6 +277,12 @@
         }
     }
 
+
+    // testing purpose 
+    var testBtn = document.getElementById('testingButton').onclick = function(){
+        var temperature = document.getElementById('temperature');
+        toggleDisplay(temperature);
+    }
     // sum.onclick = toggle(sum,det);
     // det.onclick = toggle(sum,det);
     /* Init function might need to be added

@@ -30,17 +30,26 @@
       <div class = "popup-content">
         <div class = "popup-title">
           <button type = "button" class = "popup-close">&times;</button>
-          <h3 id ="popupTitle">popup title</h3>
+          <div id ="regionAndCity"></div>
+          <div id ="country"></div>
         </div>
-        <div class="popup-body">
-          
+
+        <div class="popup-body">   
           <div id ="weatherSummary">
             <div id ="weatherIcon">Weather Icon</div>
             <div id ="temperature">Temperature</p>
+            <button type = "button" id = "testingButton">hide/open</button>
           </div>
 
-          <div id ="weatherDetail"></div>
+          <div id ="weatherDetail">
+            <div id="description"></div>
+            <div id="humidity"></div>
+            <div id="clouds"></div>
+            <div id="wind"></div>
+          </div>
         </div>
+
+        <div class="popup-body-loading"></div>
       </div>
     </div>
 
