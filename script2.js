@@ -18,8 +18,30 @@
     // Add event listener on the marker,
     // getting coordinates from it whenever the marker is dragged to somewhere
     // Important trigger of the process 
-    google.maps.event.addListener(marker, 'dragend', getCoordinates);
+    google.maps.event.addListener(marker, 'dragend', handleNewMapPosition);
    
+    function handleNewMapPosition(marker) {
+        var coordinates = getCoordinates(marker);
+        let locationInfo;
+        let weatherInfo;
+        
+        // setLoading(true);
+
+        getLocationInfo(coordinates)
+            .then(function(data) {
+                locationInfo = data;
+                return getWeatherInfo(locationInfo);
+            })
+            .then(function(data) {
+                weatherInfo = filterWeatherInfo(data);
+            })
+            .then(function() {
+                displayWeather(weatherInfo, locationInfo);
+                // setLoading(false);
+            });
+
+        // tonning down the page to display weather information
+    }
 
     // Get latitude and longitude from the marker after it is dragged to the new position
     function getCoordinates(marker){
@@ -27,74 +49,66 @@
         var latitude = marker.latLng.lat();
         var longitude = marker.latLng.lng();
 
-        getLocationInfo(latitude,longitude);
-        // tonning down the page to display weather information
+        return {
+            latitude: latitude,
+            longitude: longitude
+        };
     }
 
-    function getLocationInfo(lat,long){
-        var request = new XMLHttpRequest();
+    function getLocationInfo(coordinates){
+        var lat = coordinates.latitude;
+        var long = coordinates.longitude;      
         var geocodeAPIcall = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + "," + long + "&key=AIzaSyCFhxWUZbhlZDGKRzCcPvTSe30F8gaCqhg"
-        var geocodeData = "NA";
-        var locationInfo = "";
 
-        request.open("GET", geocodeAPIcall, true);
+        return new Promise((resolve, reject) => {
+            var request = new XMLHttpRequest();
 
-        request.onload = function() {
-            if (request.status >=200 && request.status <400){
-
+            request.open("GET", geocodeAPIcall, true);
+            request.onload = function() {
+                if (request.status !== 200) {
+                    return reject(new Error('Geocode api returned non 200 status code. Got ' + request.status));
+                }
                 console.log("geocode api call is successful");
 
-                geocodeData = JSON.parse(request.responseText);
+                var geocodeData;
+                try {
+                    geocodeData = JSON.parse(request.responseText);
+                } catch(e) {
+                    return reject(new Error('Invalid JSON returned from geocode api.'));
+                }
                 console.log(geocodeData);
 
                 let length = geocodeData.results.length;
                 
-                if(geocodeData.status === "ZERO_RESULTS"){
-                    locationInfo = {
-                        country: 0,
-                        countryCode: 0,
-                        region: 0,
-                        city: 0
-                    }
+                if (geocodeData.status === "ZERO_RESULTS"){
+                    return resolve(null);
+                }
 
-                    noWeatherAlert();
-
-                } else if(length < 2 && length >= 1){
-                    locationInfo = {
+                if (length === 1) {
+                    let locationInfo = {
                         country: geocodeData.results[0].address_components[0].long_name,
                         countryCode: geocodeData.results[0].address_components[0].short_name,
                         region: 0,
                         city: 0
-                    }
+                    };
 
-                    noWeatherAlert();
-
-                } else {
-                    // handling array length error 
-                    locationInfo = {
-                        country: geocodeData.results[length-1].address_components[0].long_name,
-                        countryCode: geocodeData.results[length-1].address_components[0].short_name,
-                        region: geocodeData.results[length-2].address_components[0].long_name,
-                    }
-
-                    if (length>2){
-                        locationInfo.city = geocodeData.results[length-3].address_components[0].long_name
-                    } else {
-                        locationInfo.city = 0;
-                    }
-                                        
-                    console.log(geocodeData);
-                    console.log(locationInfo);
-                    getWeatherInfo(locationInfo);
+                    return resolve(locationInfo);
                 }
 
-
-            } else {
-                console.log("geocode api call is unsuccessful");
+                let locationInfo = {
+                    country: geocodeData.results[length-1].address_components[0].long_name,
+                    countryCode: geocodeData.results[length-1].address_components[0].short_name,
+                    region: geocodeData.results[length-2].address_components[0].long_name,
+                };
+                if (length === 2) {
+                    locationInfo.city = 0;
+                } else {
+                    locationInfo.city = geocodeData.results[length-3].address_components[0].long_name
+                }
+                return resolve(locationInfo);
             }
-        }
-        request.send();
-
+            request.send();
+        });
     }
 
     function getWeatherInfo(locationInfo){
@@ -187,7 +201,7 @@
     function noWeatherAlert(){
         console.log("weather information is unavailable for this place")
         popupTitleEditor("middle of nowhere?!");
-        popupBodyEditor("weather information is unavailable for this place")
+        document.getElementById('weatherSummary').innerHTML = "weather information is unavailable for this place";
         popupOpen();
     }
 
@@ -210,8 +224,10 @@
         
         var iconImage = "<img src='" + weather.icon + "' height=100 width=100>";
 
-        document.getElementById('weatherIcon').innerHTML = iconImage;
-        document.getElementById('temperature').innerHTML = weather.temp;
+        var weatherIconElement = document.getElementById('weatherIcon');
+        var temperatureElement = document.getElementById('temperature');
+        weatherIconElement.innerHTML = iconImage;
+        temperatureElement.innerHTML = weather.temp;
     }
 
     function popupTitleEditor(input){
@@ -226,21 +242,21 @@
     google.maps.event.addListener(marker,'dragend', popupOpen);
     google.maps.event.addListener(marker,'dragstart', popupClose);
 
-    var sum = document.getElementById('weatherSummary');
-    var det = document.getElementById('weatherDetail');
-    // toggle div's visibility
-    function toggle(summary,detail){
-        if(sum.style.display == 'block'){
-            sum.style.display = 'none';
-            det.style.display = 'block';
-        } else {
-            sum.style.display = 'block';
-            det.style.display = 'none';
-        }
-    }
+    // var sum = document.getElementById('weatherSummary');
+    // var det = document.getElementById('weatherDetail');
+    // // toggle div's visibility
+    // function toggle(summary,detail){
+    //     if(sum.style.display == 'block'){
+    //         sum.style.display = 'none';
+    //         det.style.display = 'block';
+    //     } else {
+    //         sum.style.display = 'block';
+    //         det.style.display = 'none';
+    //     }
+    // }
 
-    sum.onclick = toggle(sum,det);
-    det.onclick = toggle(sum,det);
+    // sum.onclick = toggle(sum,det);
+    // det.onclick = toggle(sum,det);
     /* Init function might need to be added
     */
 })();
