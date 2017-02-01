@@ -30,6 +30,10 @@
         getLocationInfo(coordinates)
             .then(function(data) {
                 locationInfo = data;
+                if(!locationInfo){
+                    // If it is resolved as NULL 
+                    console.log("location null what is happening now????");
+                }
                 return getWeatherInfo(locationInfo);
             })
             .then(function(data) {
@@ -38,9 +42,14 @@
             .then(function() {
                 displayWeather(weatherInfo, locationInfo);
                 // setLoading(false);
+            })
+            .then(function() {
+                
+            })
+            .catch(function() {
+                
             });
 
-        // tonning down the page to display weather information
     }
 
     // Get latitude and longitude from the marker after it is dragged to the new position
@@ -68,6 +77,7 @@
                 if (request.status !== 200) {
                     return reject(new Error('Geocode api returned non 200 status code. Got ' + request.status));
                 }
+
                 console.log("geocode api call is successful");
 
                 var geocodeData;
@@ -114,8 +124,6 @@
     function getWeatherInfo(locationInfo){
         console.log("weather here");
 
-        var rawWeatherInfo = "";
-
         var city = locationInfo.city;
         var region = locationInfo.region;
         var countryCode = locationInfo.countryCode;
@@ -123,47 +131,42 @@
         var baseAPI = "http://api.openweathermap.org/data/2.5/weather?q=";
         var apikey = "&APPID=90aa12ad410be3d7a5f9af4f1f7e53d1";
 
-        var request = new XMLHttpRequest();
-        var url = "";
+        return new Promise((resolve,reject) => {
+            var request = new XMLHttpRequest();
+            var url;
 
-        // if the specific city name is not available
-        if(!city || typeof city === "number" || city.includes("-")){
-            console.log(city);
-            
-            url = baseAPI + region + "," + countryCode + apikey;
-            console.log(url);
-
-        // if the city name is available to search
-        } else {
-            url = baseAPI + city + "," + countryCode + apikey;
-            console.log(url);
-        }
-
-        request.open("GET",url,true); //async true
-        request.onload = function () {
-            if (request.status >= 200 && request.status < 400) {
-                // Successful request 
-                console.log("successful request is made")
-                rawWeatherInfo = JSON.parse(request.responseText);
-
-                console.log(request.responseText);
-                console.log(rawWeatherInfo);
-
-                filterWeather(rawWeatherInfo, locationInfo);
+            // if the specific city name is not available
+            if(!city || typeof city === "number" || city.includes("-")){
+                url = baseAPI + region + "," + countryCode + apikey;
+            // if the city name is available to search
             } else {
-                console.log("unsuccessful request is made")
-                // Got an error from the server
+                url = baseAPI + city + "," + countryCode + apikey;
             }
-        }
 
-        request.send();
+            request.open("GET",url,true);
+            request.onload = function () {
+                if(request.status !== 200){
+                    return reject(new Error("Weather api returned non 200 status code. Got " + request.status));
+                }
+ 
+                console.log("weather api call is successful");
+                var weatherData;
+
+                try{
+                    weatherData = JSON.parse(request.responseText);
+                } catch(e){
+                    return reject(new Error("Invalid JSON returned from weather api"));
+                }
+                return resolve(weatherData);
+            }
+            request.send();
+        });
         
     }
 
     // filter the required weather information
     function filterWeather(rawWeather,locationInfo){
-        console.log("raw weather is going to be filtered");
-        var filteredData = {
+        return {
         
             temp : (rawWeather.main.temp -273.15).toFixed(2) + "°C",
             humidity : rawWeather.main.humidity + "%",
@@ -173,12 +176,9 @@
             wind : rawWeather.wind.speed + "m/s"
 
         };
-
-        displayWeather(filteredData,locationInfo);
-
     }
 
-    // display the weather information
+    // display the weather information using pop up window title and body
     function displayWeather(weather,location){
 
         var city = location.city;
@@ -208,7 +208,7 @@
     // pop up window related 
     var popupEl = document.getElementById('popup');
     var popup = new Popup(popupEl, {
-        width: 400,
+        width: 500,
         height: 500
     });
 
@@ -242,18 +242,13 @@
     google.maps.event.addListener(marker,'dragend', popupOpen);
     google.maps.event.addListener(marker,'dragstart', popupClose);
 
-    // var sum = document.getElementById('weatherSummary');
-    // var det = document.getElementById('weatherDetail');
-    // // toggle div's visibility
-    // function toggle(summary,detail){
-    //     if(sum.style.display == 'block'){
-    //         sum.style.display = 'none';
-    //         det.style.display = 'block';
-    //     } else {
-    //         sum.style.display = 'block';
-    //         det.style.display = 'none';
-    //     }
-    // }
+    function toggleDisplay(element){
+        if(element.style.display == 'block'){
+            element.style.display = 'none';
+        } else {
+            element.style.display = 'block';
+        }
+    }
 
     // sum.onclick = toggle(sum,det);
     // det.onclick = toggle(sum,det);
