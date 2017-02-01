@@ -1,8 +1,8 @@
 //IIFE 
 (function() {
-    var myLatlng = new google.maps.LatLng(-25.363882,131.044922);
+    var myLatlng = new google.maps.LatLng(-36.848461,174.763336);
     var mapOptions = {
-    zoom: 1,
+    zoom: 8,
     center: myLatlng
     }
     var map = new google.maps.Map(document.getElementById("map"), mapOptions);
@@ -270,6 +270,8 @@
     }
 
     function toggleDisplay(element){
+        console.log("Toggle the visibility");
+
         if(element.style.display == 'block'){
             element.style.display = 'none';
         } else {
@@ -279,9 +281,15 @@
 
 
     // testing purpose 
-    var testBtn = document.getElementById('testingButton').onclick = function(){
-        var temperature = document.getElementById('temperature');
-        toggleDisplay(temperature);
+    var testBtn = document.getElementById('testingButton');
+    var sum = document.getElementById('weatherSummary');
+    sum.style.display='block';
+    var det = document.getElementById('weatherDetail');
+    det.style.display='none';
+
+    testBtn.onclick = function(){
+        toggleDisplay(sum);
+        toggleDisplay(det);
     }
     // sum.onclick = toggle(sum,det);
     // det.onclick = toggle(sum,det);

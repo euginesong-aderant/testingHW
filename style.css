@@ -36,3 +36,11 @@
 }
 
 .popup-close:hover { color: #333; }
+
+#weatherDetail {
+  display : none;
+}
+
+#weatherSummary {
+  display : block;
+}
