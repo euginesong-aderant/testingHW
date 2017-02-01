@@ -72,35 +72,57 @@
 
     function getWeatherInfo(country,region,city){
         console.log("weather here");
-    }
 
-    // Get raw weather data using the coordinates making API call
-    function getWeatherInfoOld(lat,long){
-        // console.log("latitude is : " + lat);
-        // console.log("longitude is : " + long);
+        var rawWeatherInfo = "";
 
-        // var weatherAPIcall = "https://api.darksky.net/forecast/de424ca25621d294b676a6c59da57276/" + lat + "," + long;
-        
-        var weatherAPIcall = "http://api.openweathermap.org/data/2.5/weather?lat=" + lat + "&long=" + long + "&APPID=90aa12ad410be3d7a5f9af4f1f7e53d1";
+        var baseAPI = "http://api.openweathermap.org/data/2.5/weather?q=";
+        var apikey = "&APPID=90aa12ad410be3d7a5f9af4f1f7e53d1";
 
         var request = new XMLHttpRequest();
-        var weatherData ="NA";
-        request.open("GET", weatherAPIcall, true);
-        request.onload = function() {
+        var url = "";
+
+        // if the specific city name is not available
+        if(!city || typeof city === "number" || city.includes("-")){
+            console.log(city);
+            url = baseAPI + region + "," + country + apikey;
+
+        // if the city name is available to search
+        } else {
+            url = baseAPI + city + "," + country + apikey;
+        }
+
+        request.open("GET",url,true); //async true
+        request.onload = function () {
             if (request.status >= 200 && request.status < 400) {
                 // Successful request 
                 console.log("successful request is made")
-                weatherData = JSON.parse(request.responseText);
+                rawWeatherInfo = JSON.parse(request.responseText);
+
                 console.log(request.responseText);
+                console.log(rawWeatherInfo);
+
+                filterWeather(rawWeatherInfo);
             } else {
                 console.log("unsuccessful request is made")
                 // Got an error from the server
             }
-        };
-        request.send();
+        }
 
-        console.log(weatherData);
+        request.send();
+        
+    }
+
+    // filter the required weather information
+    function filterWeather(rawWeather){
+        console.log("raw weather is going to be filtered");
+    }
+
+    // display the weather information
+    function displayWeather(){
 
     }
 
+
+    /* Init function might need to be added
+    */
 })();
