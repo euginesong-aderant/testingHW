@@ -172,7 +172,6 @@
         var country = location.country;
         var title = "";
         
-
         if(!city || typeof city === "number" || city.includes("-")){
             title = region + ", " + country;
         } else {
@@ -209,20 +208,39 @@
 
     function popupBodyEditor(weather){
         
-        var iconImage = "<img src='" + weather.icon + "' height=100 width=100>"
-        console.log("Icon image tag url : " + iconImage);
+        var iconImage = "<img src='" + weather.icon + "' height=100 width=100>";
 
         document.getElementById('weatherIcon').innerHTML = iconImage;
-        document.getElementsByClassName('popup-body')[0].innerHTML = weather.temp;
+        document.getElementById('temperature').innerHTML = weather.temp;
     }
 
     function popupTitleEditor(input){
         document.getElementById('popupTitle').innerHTML = input;
     }
 
+    // function displayWeatherDetail(){
+    //     document.getElementsByClassName('popup-body')[0].innerHTML = "Something else is coming here ! ";
+    // }
+    // document.getElementById('weatherIcon').onclick = displayWeatherDetail();
+
     google.maps.event.addListener(marker,'dragend', popupOpen);
     google.maps.event.addListener(marker,'dragstart', popupClose);
 
+    var sum = document.getElementById('weatherSummary');
+    var det = document.getElementById('weatherDetail');
+    // toggle div's visibility
+    function toggle(summary,detail){
+        if(sum.style.display == 'block'){
+            sum.style.display = 'none';
+            det.style.display = 'block';
+        } else {
+            sum.style.display = 'block';
+            det.style.display = 'none';
+        }
+    }
+
+    sum.onclick = toggle(sum,det);
+    det.onclick = toggle(sum,det);
     /* Init function might need to be added
     */
 })();
