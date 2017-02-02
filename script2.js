@@ -160,14 +160,12 @@
 
     // Get raw weather information, openWeatherMap API call is made here
     function getWeatherInfo(locationInfo){
-        console.log("get weather info is called");
 
         var baseAPI = "http://api.openweathermap.org/data/2.5/weather?q=";
         var apikey = "&APPID=90aa12ad410be3d7a5f9af4f1f7e53d1";
 
         return new Promise((resolve,reject) => {
             if(!locationInfo){
-                console.log("location info is null");
                 return resolve(null);
             }
                     
@@ -178,21 +176,26 @@
             var request = new XMLHttpRequest();
             var url;
 
-            // if the specific city name is not available
-            if(!city || typeof city === "number" || city.includes("-") || city.includes("Unknown")){
+            // if the city name is invalid
+            if(!isNameValid(city)){
                 url = baseAPI + region + "," + countryCode + apikey;
+            // if the region name is invalid
+            } else if(!isNameValid(region)){
+                return resolve(null);
             // if the city name is available to search
             } else {
                 url = baseAPI + city + "," + countryCode + apikey;
             }
+            
+            console.log(url);
 
             request.open("GET",url,true);
             request.onload = function () {
-                if(request.status !== 200){
+                if(request.status !== 200 && request.status !== 502){
                     return reject(new Error("Weather api returned non 200 status code. Got " + request.status));
+                } else if(request.status == 502){
+                    return resolve(null);
                 }
- 
-                console.log("weather api call is successful");
                 var weatherData;
 
                 try{
@@ -201,20 +204,24 @@
                     return reject(new Error("Invalid JSON returned from weather api"));
                 }
 
-                console.log("Weather Information : ");
-                console.log(weatherData);
-
                 return resolve(weatherData);
             }
             request.send();
         });
         
     }
+    
+    // Filter the name that is not serachable or usable and return boolean
+    function isNameValid(name){
+        if(!name || !isNaN(name) || name.includes("-") || name.includes("Unknown") || name.includes(",")){
+            return false;
+        }
+        return true;
+    }
 
     // Filter the required weather information
     function filterWeatherInfo(rawWeather,locationInfo){
-        console.log(rawWeather);
-        console.log(locationInfo);
+
 
         if(!rawWeather || !locationInfo){
             return null;
@@ -239,6 +246,7 @@
     }
 
     function displayNoWeatherAvailable(locationinfo){
+        
 
     }
     
