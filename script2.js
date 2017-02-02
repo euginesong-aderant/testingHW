@@ -267,34 +267,35 @@
     function beaufortConverter(windSpeed){
         var beaufortScale;
         if (windSpeed <0.3){
-            beaufortScale = "calm";
-        } else if(windspeed>=0.3 && windspeed<1.6) {
-            beaufortScale = "light air";
-        } else if(windspeed>=1.6 && windspeed<3.4) {
-            beaufortScale = "light breeze";
-        } else if(windspeed>=3.4 && windspeed<5.5) {
-            beaufortScale = "gentle breeze";
-        } else if(windspeed>=5.5 && windspeed<8.0) {
-            beaufortScale = "moderate breeze";
-        } else if(windspeed>=8.0 && windspeed<10.8) {
-            beaufortScale = "fresh breeze";
-        } else if(windspeed>=10.8 && windspeed<13.9) {
-            beaufortScale = "strong breeze";
-        } else if(windspeed>=13.9 && windspeed<17.2) {
-            beaufortScale = "near gale";
-        } else if(windspeed>=17.2 && windspeed<20.8) {
-            beaufortScale = "gale";
-        } else if(windspeed>=20.8 && windspeed<24.5) {
-            beaufortScale = "strong gale";
-        } else if(windspeed>=24.5 && windspeed<28.5) {
-            beaufortScale = "storm";
-        } else if(windspeed>=28.5 && windspeed<32.7) {
-            beaufortScale = "violent storm";
-        } else if(windspeed>32.7) {
-            beaufortScale = "hurricane force";
+            beaufortScale = " calm";
+        } else if(windSpeed>=0.3 && windSpeed<1.6) {
+            beaufortScale = " like a light air";
+        } else if(windSpeed>=1.6 && windSpeed<3.4) {
+            beaufortScale = " like a light breeze";
+        } else if(windSpeed>=3.4 && windSpeed<5.5) {
+            beaufortScale = " like a gentle breeze";
+        } else if(windSpeed>=5.5 && windSpeed<8.0) {
+            beaufortScale = " like a moderate breeze";
+        } else if(windSpeed>=8.0 && windSpeed<10.8) {
+            beaufortScale = " like a fresh breeze";
+        } else if(windSpeed>=10.8 && windSpeed<13.9) {
+            beaufortScale = " like a strong breeze";
+        } else if(windSpeed>=13.9 && windSpeed<17.2) {
+            beaufortScale = " like a near gale";
+        } else if(windSpeed>=17.2 && windSpeed<20.8) {
+            beaufortScale = " like a gale";
+        } else if(windSpeed>=20.8 && windSpeed<24.5) {
+            beaufortScale = " like a strong gale";
+        } else if(windSpeed>=24.5 && windSpeed<28.5) {
+            beaufortScale = " like a storm";
+        } else if(windSpeed>=28.5 && windSpeed<32.7) {
+            beaufortScale = " like a violent storm";
+        } else if(windSpeed>32.7) {
+            beaufortScale = " like a hurricane force";
         }
-
+        return beaufortScale;
     }
+
     function popupBodyEditor(weather){
         console.log("body editior opened");
 
@@ -306,7 +307,8 @@
         descriptionEl.innerHTML = weather.desc.charAt(0).toUpperCase() + weather.desc.slice(1);
         humidityEl.innerHTML = "Humidity is " + weather.humidity + "%.";
         cloudsEl.innerHTML = "Cloudness is " + weather.clouds + "%.";
-        windEl.innerHTML = "Wind speed is " + weather.wind + "m/s.";
+        var windDescription = beaufortConverter(weather.wind) + ".";
+        windEl.innerHTML = "Wind speed is " + weather.wind + "m/s.<br> It means the wind feels" + windDescription;
     }
     // function displayWeatherDetail(){
     //     document.getElementsByClassName('popup-body')[0].innerHTML = "Something else is coming here ! ";
