@@ -53,4 +53,10 @@
 #loadingImg {
   width : 100px;
   height : 100px;
+  padding-top : 18px;
+}
+
+#nowhereImg {
+  width : 100px;
+  height : 100px;
 }

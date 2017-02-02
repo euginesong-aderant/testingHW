@@ -15,8 +15,9 @@
     var summaryEl = document.getElementById('weatherSummary');
     var detailEl = document.getElementById('weatherDetail');
     var loadingEl = document.getElementById('loading');
+    var nowhereEl = document.getElementById('nowhere');
 
-    // pop up window related 
+    // Pop up window related 
     var popupEl = document.getElementById('popup');
     var popup = new Popup(popupEl, {
         width: 300,
@@ -56,11 +57,12 @@
 
         getLocationInfo(coordinates)
             .then(function(data) {
+                console.log("1st");
                 locationInfo = data;
+                console.log(locationInfo)
                 return getWeatherInfo(locationInfo);
             })
             .then(function(data) {
-                console.log(data);
                 console.log("2nd");
                 weatherInfo = filterWeatherInfo(data, locationInfo);
             })
@@ -75,7 +77,8 @@
                     displayWeather(weatherInfo, locationInfo);
                 }
             })
-            .catch(function() {
+            .catch(function(e) {
+                console.log(e);
                 console.log("something is not working");
             });
 
@@ -159,19 +162,19 @@
     function getWeatherInfo(locationInfo){
         console.log("get weather info is called");
 
-        if(!locationInfo){
-            console.log("location info is null");
-            return resolve(null);
-        }
-
-        var city = locationInfo.city;
-        var region = locationInfo.region;
-        var countryCode = locationInfo.countryCode;
-
         var baseAPI = "http://api.openweathermap.org/data/2.5/weather?q=";
         var apikey = "&APPID=90aa12ad410be3d7a5f9af4f1f7e53d1";
 
         return new Promise((resolve,reject) => {
+            if(!locationInfo){
+                console.log("location info is null");
+                return resolve(null);
+            }
+                    
+            var city = locationInfo.city;
+            var region = locationInfo.region;
+            var countryCode = locationInfo.countryCode;
+
             var request = new XMLHttpRequest();
             var url;
 
@@ -230,7 +233,9 @@
 
     function displayInvalidLoaction(){
         countryEl.innerHTML = "This is middle of nowhere !";
-        descriptionEl.innerHTML = "How about trying to move the marker to the other place?";
+        nowhereEl.style.display = 'block';
+        summaryEl.style.display='none';
+        detailEl.style.display='none';
     }
 
     function displayNoWeatherAvailable(locationinfo){
@@ -318,18 +323,23 @@
 
     // Loading page visibility is adjusted using this function
     function setLoading(criteria){
+        // When the data is loaded
         if(!criteria){
             summaryEl.style.display='block';
             detailEl.style.display='none';
             loadingEl.style.display='none';
+            nowhereEl.style.display='none';
+        // When the data is loading
         }else{
             summaryEl.style.display='none';
             detailEl.style.display='none';
             loadingEl.style.display='block';
+            nowhereEl.style.display='none';
         }
         cityEl.innerHTML = "";
         countryEl.innerHTML = "";
     }
+
     // Toggle the visibility of given single element
     function toggleDisplay(element){
         if(element.style.display == 'block'){
@@ -340,7 +350,12 @@
     }
    
     // Summary page and detail page are togglable by clicking it
-    popupBodyEl.onclick = function(){
+    summaryEl.onclick = function(){
+        toggleDisplay(summaryEl);
+        toggleDisplay(detailEl);
+    }
+
+    detailEl.onclick = function(){
         toggleDisplay(summaryEl);
         toggleDisplay(detailEl);
     }
