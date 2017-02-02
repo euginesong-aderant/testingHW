@@ -50,17 +50,13 @@
 
         getLocationInfo(coordinates)
             .then(function(data) {
-                console.log("1st");
                 locationInfo = data;
-                console.log(locationInfo)
                 return getWeatherInfo(locationInfo);
             })
             .then(function(data) {
-                console.log("2nd");
                 weatherInfo = filterWeatherInfo(data, locationInfo);
             })
             .then(function() {
-                console.log("3rd");
                 setLoading(false);
                 if (!locationInfo){
                     displayInvalidLoaction();
@@ -80,8 +76,8 @@
     // Pop up window related 
     var popupEl = document.getElementById('popup');
     var popup = new Popup(popupEl, {
-        width: 300,
-        height: 300
+        width: 600,
+        height: 400
     });
 
     // Get latitude and longitude from the marker after it is dragged to the new position
@@ -111,15 +107,12 @@
                     return reject(new Error('Geocode api returned non 200 status code. Got ' + request.status));
                 }
 
-                console.log("geocode api call is successful");
-
                 var geocodeData;
                 try {
                     geocodeData = JSON.parse(request.responseText);
                 } catch(e) {
                     return reject(new Error('Invalid JSON returned from geocode api.'));
                 }
-                console.log(geocodeData);
 
                 let length = geocodeData.results.length;
                 
@@ -148,9 +141,6 @@
                 } else {
                     locationInfo.city = geocodeData.results[length-3].address_components[0].long_name
                 }
-
-                console.log("Location Information : ");
-                console.log(locationInfo);
 
                 return resolve(locationInfo);
             }
@@ -187,8 +177,6 @@
                 url = baseAPI + city + "," + countryCode + apikey;
             }
             
-            console.log(url);
-
             request.open("GET",url,true);
             request.onload = function () {
                 if(request.status !== 200 && request.status !== 502){
@@ -222,7 +210,6 @@
     // Filter the required weather information
     function filterWeatherInfo(rawWeather,locationInfo){
 
-
         if(!rawWeather || !locationInfo){
             return null;
         }
@@ -239,7 +226,7 @@
     }
 
     function displayInvalidLoaction(){
-        countryEl.innerHTML = "This is middle of nowhere !";
+        countryEl.innerHTML = "THIS IS MIDDLE OF NOWHERE !";
         nowhereEl.style.display = 'block';
         summaryEl.style.display='none';
         detailEl.style.display='none';
@@ -247,8 +234,8 @@
 
     function displayNoWeatherAvailable(location){
         popupTitleEditor(location);
-        weatherIconEl.innerHTML = "<img src='sad.svg' alt='sorry' height=100 width=100>";
-        temperatureEl.innerHTML = "Weather information for this place is unavailable.";
+        weatherIconEl.innerHTML = "<img src='sad.svg' alt='sorry' height=150 width=150>";
+        temperatureEl.innerHTML = "Sorry ! Weather information for this place is unavailable.";
     }
     
     // Display the weather information using pop up window title and body
@@ -298,15 +285,18 @@
         return beaufortScale;
     }
 
+    // Inner HTML of elements in the pop up window - title is edited here
     function popupTitleEditor(location){
         var city = location.city;
         var region = location.region;
-        var country = location.country;
+        var country = location.country.toUpperCase();
 
-        if(!isNameValid(city)){
-            cityEl.innerHTML = region;
+        if(!isNameValid(city) && isNameValid(region)){
+            cityEl.innerHTML = region.toUpperCase();
+        } else if(!isNameValid(city) && !isNameValid(region)){
+            cityEl.innerHTML = "";
         } else {
-            cityEl.innerHTML = city + ", " + region;
+            cityEl.innerHTML = city.toUpperCase() + ", " + region.toUpperCase();
         }
 
         countryEl.innerHTML = country;
@@ -319,7 +309,7 @@
         var iconSrc = iconFinder(weather.icon);
         console.log(weather.icon);
         console.log(iconSrc);
-        var iconImage = "<img src='" + iconSrc + ".svg' alt=" + weather.desc + "height=100 width=100>";
+        var iconImage = "<img src='" + iconSrc + ".svg' alt=" + weather.desc + "height=150 width=150 style='cursor : pointer'>";
 
         // Summary part
         weatherIconEl.innerHTML = iconImage;
@@ -333,6 +323,7 @@
         windEl.innerHTML = "Wind speed is " + weather.wind + "m/s.<br> It means the wind feels" + windDescription;
     }
 
+    // Based on the returned data's icon code, it finds the right icon and return its file name
     function iconFinder(iconCode){
         var index = iconCode.slice(0,2);
         var iconSrc;

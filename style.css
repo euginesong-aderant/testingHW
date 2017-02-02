@@ -1,27 +1,44 @@
+
+/*
+@font-face {
+  font-family : bodyFont;
+  src : url("fonts/DK_Crayon_Crumble.ttf") format('truetype');
+}*/
+
+@import url('https://fonts.googleapis.com/css?family=Amaranth');
+
+@font-face {
+  font-family : titleFont;
+  src : url("fonts/Strange_Tales.ttf") format('truetype');
+}
+
 .popup-wrapper {
   background-color: #fff;
   border: 1px solid #ddd;
   border-radius: 5px;
   box-shadow: 0 2px 8px #aaa;
   overflow: hidden;
+  display: none;
 }
 
 .popup-title {
   padding: 10px 15px;
-  /*background-color: #f4f4f4;
-  border-bottom: 1px solid #f0f0f0;*/
+  font-family: 'titleFont';
+  font-size : 30px;
 }
 
-.popup-title h3 {
+/*.popup-title h3 {
   margin: 0;
   line-height: 1.5em;
   color: #333;
-}
+}*/
 
 .popup-body {
   padding: 10px 15px;
   color: #555;
   vertical-align: middle;
+  font-family : 'Amaranth', sans-serif;
+  font-size : 20px;
 }
 
 .popup-close {
@@ -40,9 +57,12 @@
 
 #weatherDetail {
   display : none;
+  cursor : pointer;
+  padding-top : 45px;
 }
 
 #weatherSummary {
+  padding-top : 20px;
   display : block;
 }
 
@@ -51,12 +71,16 @@
 }
 
 #loadingImg {
-  width : 100px;
-  height : 100px;
-  padding-top : 18px;
+  width : 150px;
+  height : 150px;
+  padding-top : 36px;
 }
 
 #nowhereImg {
-  width : 100px;
-  height : 100px;
+  width : 150px;
+  height : 150px;
+}
+
+#weatherIcon {
+  padding-bottom : 20px;
 }
