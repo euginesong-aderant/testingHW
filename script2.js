@@ -182,7 +182,7 @@
                 if(request.status !== 200 && request.status !== 502){
                     return reject(new Error("Weather api returned non 200 status code. Got " + request.status));
 
-                // When the given city / region's weather is not probided 
+                // When the given city / region's weather is not provided 
                 } else if(request.status == 502){
                     return resolve(null);
                 }
