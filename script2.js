@@ -1,5 +1,28 @@
 //IIFE 
 (function() {
+
+    // Elements used for display
+    var popupTitleEl = document.getElementsByClassName('popup-title')[0];
+    var cityEl = document.getElementById('regionAndCity');
+    var countryEl = document.getElementById('country');
+    var popupBodyEl = document.getElementsByClassName('popup-body')[0];
+    var weatherIconEl = document.getElementById('weatherIcon');
+    var temperatureEl = document.getElementById('temperature');
+    var descriptionEl = document.getElementById('description');
+    var humidityEl = document.getElementById('humidity');
+    var cloudsEl = document.getElementById('clouds');
+    var windEl = document.getElementById('wind');
+    var summaryEl = document.getElementById('weatherSummary');
+    var detailEl = document.getElementById('weatherDetail');
+    var loadingEl = document.getElementById('loading');
+
+    // pop up window related 
+    var popupEl = document.getElementById('popup');
+    var popup = new Popup(popupEl, {
+        width: 300,
+        height: 300
+    });
+
     var myLatlng = new google.maps.LatLng(-36.848461,174.763336);
     var mapOptions = {
     zoom: 8,
@@ -20,12 +43,16 @@
     // Important trigger of the process 
     google.maps.event.addListener(marker, 'dragend', handleNewMapPosition);
    
+    // From marker dragging event, this chain reactions will happen
+    // It will get coordinates from the position that marker is moved to, from that getting geolocation information
+    // Geolocation information is used to get weather information for the area 
+    // Data acquired will be displayed through pop up window
     function handleNewMapPosition(marker) {
         var coordinates = getCoordinates(marker);
         let locationInfo;
         let weatherInfo;
-        
-        // setLoading(true);
+
+        setLoading(true);
 
         getLocationInfo(coordinates)
             .then(function(data) {
@@ -39,6 +66,7 @@
             })
             .then(function() {
                 console.log("3rd");
+                setLoading(false);
                 if (!locationInfo){
                     displayInvalidLoaction();
                 } else if (!weatherInfo){
@@ -46,10 +74,6 @@
                 } else {
                     displayWeather(weatherInfo, locationInfo);
                 }
-                // setLoading(false);
-            })
-            .then(function() {
-                
             })
             .catch(function() {
                 console.log("something is not working");
@@ -69,6 +93,7 @@
         };
     }
 
+    // Get location information from coordinates, googleMapsGeolocation API call is made here
     function getLocationInfo(coordinates){
         var lat = coordinates.latitude;
         var long = coordinates.longitude;      
@@ -130,6 +155,7 @@
         });
     }
 
+    // Get raw weather information, openWeatherMap API call is made here
     function getWeatherInfo(locationInfo){
         console.log("get weather info is called");
 
@@ -182,7 +208,7 @@
         
     }
 
-    // filter the required weather information
+    // Filter the required weather information
     function filterWeatherInfo(rawWeather,locationInfo){
         console.log(rawWeather);
         console.log(locationInfo);
@@ -202,18 +228,6 @@
         };
     }
 
-    // Elements used for display
-    var popupTitlEl = document.getElementsByClassName('popup-title')[0];
-    var cityEl = document.getElementById('regionAndCity');
-    var countryEl = document.getElementById('country');
-    var popupBodyEl = document.getElementsByClassName('popup-body')[0];
-    var weatherIconEl = document.getElementById('weatherIcon');
-    var temperatureEl = document.getElementById('temperature');
-    var descriptionEl = document.getElementById('description');
-    var humidityEl = document.getElementById('humidity');
-    var cloudsEl = document.getElementById('clouds');
-    var windEl = document.getElementById('wind');
-
     function displayInvalidLoaction(){
         countryEl.innerHTML = "This is middle of nowhere !";
         descriptionEl.innerHTML = "How about trying to move the marker to the other place?";
@@ -223,16 +237,8 @@
 
     }
     
-    function noWeatherAlert(){
-        console.log("weather information is unavailable for this place")
-        popupTitleEditor("middle of nowhere?!");
-        document.getElementById('weatherSummary').innerHTML = "weather information is unavailable for this place";
-        popupOpen();
-    }
-    // display the weather information using pop up window title and body
+    // Display the weather information using pop up window title and body
     function displayWeather(weather,location){
-
-        console.log("display weather opened");
 
         var city = location.city;
         var region = location.region;
@@ -247,13 +253,6 @@
         countryEl.innerHTML = country;
         popupBodyEditor(weather);
     }
-
-    // pop up window related 
-    var popupEl = document.getElementById('popup');
-    var popup = new Popup(popupEl, {
-        width: 500,
-        height: 500
-    });
 
     function popupOpen(){
         popup.open();
@@ -296,32 +295,42 @@
         return beaufortScale;
     }
 
+    // Inner HTML of elements in the pop up window - body is edited here
     function popupBodyEditor(weather){
         console.log("body editior opened");
 
         var iconImage = "<img src='" + weather.icon + "' height=100 width=100>";
 
+        // Summary part
         weatherIconEl.innerHTML = iconImage;
         temperatureEl.innerHTML = weather.temp + "°C";
 
+        // Detail part
         descriptionEl.innerHTML = weather.desc.charAt(0).toUpperCase() + weather.desc.slice(1);
         humidityEl.innerHTML = "Humidity is " + weather.humidity + "%.";
         cloudsEl.innerHTML = "Cloudness is " + weather.clouds + "%.";
         var windDescription = beaufortConverter(weather.wind) + ".";
         windEl.innerHTML = "Wind speed is " + weather.wind + "m/s.<br> It means the wind feels" + windDescription;
     }
-    // function displayWeatherDetail(){
-    //     document.getElementsByClassName('popup-body')[0].innerHTML = "Something else is coming here ! ";
-    // }
-    // document.getElementById('weatherIcon').onclick = displayWeatherDetail();
 
     google.maps.event.addListener(marker,'dragend', popupOpen);
     google.maps.event.addListener(marker,'dragstart', popupClose);
 
-    function setLoading(){
-
+    // Loading page visibility is adjusted using this function
+    function setLoading(criteria){
+        if(!criteria){
+            summaryEl.style.display='block';
+            detailEl.style.display='none';
+            loadingEl.style.display='none';
+        }else{
+            summaryEl.style.display='none';
+            detailEl.style.display='none';
+            loadingEl.style.display='block';
+        }
+        cityEl.innerHTML = "";
+        countryEl.innerHTML = "";
     }
-
+    // Toggle the visibility of given single element
     function toggleDisplay(element){
         if(element.style.display == 'block'){
             element.style.display = 'none';
@@ -329,20 +338,13 @@
             element.style.display = 'block';
         }
     }
-
-
-    var infoBody = document.getElementsByClassName('popup-body')[0];
-    var sum = document.getElementById('weatherSummary');
-    sum.style.display='block';
-    var det = document.getElementById('weatherDetail');
-    det.style.display='none';
-
-    infoBody.onclick = function(){
-        toggleDisplay(sum);
-        toggleDisplay(det);
+   
+    // Summary page and detail page are togglable by clicking it
+    popupBodyEl.onclick = function(){
+        toggleDisplay(summaryEl);
+        toggleDisplay(detailEl);
     }
-    // sum.onclick = toggle(sum,det);
-    // det.onclick = toggle(sum,det);
+
     /* Init function might need to be added
     */
 })();

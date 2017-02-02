@@ -49,3 +49,8 @@
 #popup {
   text-align: center;
 }
+
+#loadingImg {
+  width : 100px;
+  height : 100px;
+}
