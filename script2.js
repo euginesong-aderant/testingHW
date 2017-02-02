@@ -192,12 +192,12 @@
         }
         return {
         
-            temp : (rawWeather.main.temp -273.15).toFixed(2) + "°C",
-            humidity : rawWeather.main.humidity + "%",
+            temp : (rawWeather.main.temp -273.15).toFixed(2),
+            humidity : rawWeather.main.humidity,
             desc : rawWeather.weather[0].description,
             icon : "http://openweathermap.org/img/w/" + rawWeather.weather[0].icon + ".png",
-            clouds : rawWeather.clouds.all + "%",
-            wind : rawWeather.wind.speed + "m/s"
+            clouds : rawWeather.clouds.all,
+            wind : rawWeather.wind.speed
 
         };
     }
@@ -263,15 +263,50 @@
         popup.close();
     }
 
+    // Convert wind speed to Beaufort scale
+    function beaufortConverter(windSpeed){
+        var beaufortScale;
+        if (windSpeed <0.3){
+            beaufortScale = "calm";
+        } else if(windspeed>=0.3 && windspeed<1.6) {
+            beaufortScale = "light air";
+        } else if(windspeed>=1.6 && windspeed<3.4) {
+            beaufortScale = "light breeze";
+        } else if(windspeed>=3.4 && windspeed<5.5) {
+            beaufortScale = "gentle breeze";
+        } else if(windspeed>=5.5 && windspeed<8.0) {
+            beaufortScale = "moderate breeze";
+        } else if(windspeed>=8.0 && windspeed<10.8) {
+            beaufortScale = "fresh breeze";
+        } else if(windspeed>=10.8 && windspeed<13.9) {
+            beaufortScale = "strong breeze";
+        } else if(windspeed>=13.9 && windspeed<17.2) {
+            beaufortScale = "near gale";
+        } else if(windspeed>=17.2 && windspeed<20.8) {
+            beaufortScale = "gale";
+        } else if(windspeed>=20.8 && windspeed<24.5) {
+            beaufortScale = "strong gale";
+        } else if(windspeed>=24.5 && windspeed<28.5) {
+            beaufortScale = "storm";
+        } else if(windspeed>=28.5 && windspeed<32.7) {
+            beaufortScale = "violent storm";
+        } else if(windspeed>32.7) {
+            beaufortScale = "hurricane force";
+        }
+
+    }
     function popupBodyEditor(weather){
         console.log("body editior opened");
 
         var iconImage = "<img src='" + weather.icon + "' height=100 width=100>";
 
-        var weatherIconElement = document.getElementById('weatherIcon');
-        var temperatureElement = document.getElementById('temperature');
-        weatherIconElement.innerHTML = iconImage;
-        temperatureElement.innerHTML = weather.temp;
+        weatherIconEl.innerHTML = iconImage;
+        temperatureEl.innerHTML = weather.temp + "°C";
+
+        descriptionEl.innerHTML = weather.desc.charAt(0).toUpperCase() + weather.desc.slice(1);
+        humidityEl.innerHTML = "Humidity is " + weather.humidity + "%.";
+        cloudsEl.innerHTML = "Cloudness is " + weather.clouds + "%.";
+        windEl.innerHTML = "Wind speed is " + weather.wind + "m/s.";
     }
     // function displayWeatherDetail(){
     //     document.getElementsByClassName('popup-body')[0].innerHTML = "Something else is coming here ! ";
