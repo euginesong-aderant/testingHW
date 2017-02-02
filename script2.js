@@ -181,6 +181,8 @@
             request.onload = function () {
                 if(request.status !== 200 && request.status !== 502){
                     return reject(new Error("Weather api returned non 200 status code. Got " + request.status));
+
+                // When the given city / region's weather is not probided 
                 } else if(request.status == 502){
                     return resolve(null);
                 }
@@ -225,6 +227,7 @@
         };
     }
 
+    // When there is no location data, display this 
     function displayInvalidLoaction(){
         countryEl.innerHTML = "THIS IS MIDDLE OF NOWHERE !";
         nowhereEl.style.display = 'block';
@@ -232,6 +235,7 @@
         detailEl.style.display='none';
     }
 
+    // When there is no weather data, display this
     function displayNoWeatherAvailable(location){
         popupTitleEditor(location);
         weatherIconEl.innerHTML = "<img src='sad.svg' alt='sorry' height=150 width=150>";
