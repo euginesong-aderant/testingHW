@@ -17,13 +17,6 @@
     var loadingEl = document.getElementById('loading');
     var nowhereEl = document.getElementById('nowhere');
 
-    // Pop up window related 
-    var popupEl = document.getElementById('popup');
-    var popup = new Popup(popupEl, {
-        width: 300,
-        height: 300
-    });
-
     var myLatlng = new google.maps.LatLng(-36.848461,174.763336);
     var mapOptions = {
     zoom: 8,
@@ -72,7 +65,7 @@
                 if (!locationInfo){
                     displayInvalidLoaction();
                 } else if (!weatherInfo){
-                    displayNoWeatherAvailable();
+                    displayNoWeatherAvailable(locationInfo);
                 } else {
                     displayWeather(weatherInfo, locationInfo);
                 }
@@ -83,6 +76,13 @@
             });
 
     }
+    
+    // Pop up window related 
+    var popupEl = document.getElementById('popup');
+    var popup = new Popup(popupEl, {
+        width: 300,
+        height: 300
+    });
 
     // Get latitude and longitude from the marker after it is dragged to the new position
     function getCoordinates(marker){
@@ -231,7 +231,7 @@
             temp : (rawWeather.main.temp -273.15).toFixed(2),
             humidity : rawWeather.main.humidity,
             desc : rawWeather.weather[0].description,
-            icon : "http://openweathermap.org/img/w/" + rawWeather.weather[0].icon + ".png",
+            icon : rawWeather.weather[0].icon,
             clouds : rawWeather.clouds.all,
             wind : rawWeather.wind.speed
 
@@ -245,25 +245,15 @@
         detailEl.style.display='none';
     }
 
-    function displayNoWeatherAvailable(locationinfo){
-        
-
+    function displayNoWeatherAvailable(location){
+        popupTitleEditor(location);
+        weatherIconEl.innerHTML = "<img src='sad.svg' alt='sorry' height=100 width=100>";
+        temperatureEl.innerHTML = "Weather information for this place is unavailable.";
     }
     
     // Display the weather information using pop up window title and body
     function displayWeather(weather,location){
-
-        var city = location.city;
-        var region = location.region;
-        var country = location.country;
-
-        if(!city || typeof city === "number" || city.includes("-")){
-            cityEl.innerHTML = region;
-        } else {
-            cityEl.innerHTML = city + ", " + region;
-        }
-
-        countryEl.innerHTML = country;
+        popupTitleEditor(location);
         popupBodyEditor(weather);
     }
 
@@ -308,11 +298,28 @@
         return beaufortScale;
     }
 
+    function popupTitleEditor(location){
+        var city = location.city;
+        var region = location.region;
+        var country = location.country;
+
+        if(!isNameValid(city)){
+            cityEl.innerHTML = region;
+        } else {
+            cityEl.innerHTML = city + ", " + region;
+        }
+
+        countryEl.innerHTML = country;
+    };
+
     // Inner HTML of elements in the pop up window - body is edited here
     function popupBodyEditor(weather){
         console.log("body editior opened");
 
-        var iconImage = "<img src='" + weather.icon + "' height=100 width=100>";
+        var iconSrc = iconFinder(weather.icon);
+        console.log(weather.icon);
+        console.log(iconSrc);
+        var iconImage = "<img src='" + iconSrc + ".svg' alt=" + weather.desc + "height=100 width=100>";
 
         // Summary part
         weatherIconEl.innerHTML = iconImage;
@@ -324,6 +331,19 @@
         cloudsEl.innerHTML = "Cloudness is " + weather.clouds + "%.";
         var windDescription = beaufortConverter(weather.wind) + ".";
         windEl.innerHTML = "Wind speed is " + weather.wind + "m/s.<br> It means the wind feels" + windDescription;
+    }
+
+    function iconFinder(iconCode){
+        var index = iconCode.slice(0,2);
+        var iconSrc;
+        if (index < 3){
+            iconSrc = iconCode;
+        } else if(index == 4){
+            iconSrc = "03";
+        } else {
+            iconSrc = index;
+        }
+        return iconSrc;
     }
 
     google.maps.event.addListener(marker,'dragend', popupOpen);
